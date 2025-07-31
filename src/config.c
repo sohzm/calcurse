@@ -122,6 +122,7 @@ static const struct confvar confmap[] = {
 	{"general.multipledays", CONFIG_HANDLER_BOOL(conf.multiple_days)},
 	{"general.periodicsave", CONFIG_HANDLER_UNSIGNED(conf.periodic_save)},
 	{"general.systemevents", CONFIG_HANDLER_BOOL(conf.systemevents)},
+	{"general.statusbarshow", CONFIG_HANDLER_BOOL(conf.status_bar_show)},
 	{"notification.command", CONFIG_HANDLER_STR(nbar.cmd)},
 	{"notification.notifyall", config_parse_notifyall, config_serialize_notifyall, NULL},
 	{"notification.warning", CONFIG_HANDLER_INT(nbar.cntdwn)}

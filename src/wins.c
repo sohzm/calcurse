@@ -457,10 +457,14 @@ void wins_resize(void)
 
 	delwin(win[STA].p);
 	delwin(win[KEY].p);
-	win[STA].p = newwin(win[STA].h, win[STA].w, win[STA].y, win[STA].x);
+	if (wins_status_bar_visible()) {
+		win[STA].p = newwin(win[STA].h, win[STA].w, win[STA].y, win[STA].x);
+		keypad(win[STA].p, TRUE);
+	} else {
+		win[STA].p = newwin(1, 1, 0, 0);
+	}
 	win[KEY].p = newwin(1, 1, 1, 1);
 
-	keypad(win[STA].p, TRUE);
 	keypad(win[KEY].p, TRUE);
 
 	if (notify_bar())
@@ -483,6 +487,40 @@ void wins_show(WINDOW * win, const char *label)
 	}
 }
 
+/* Toggles the status bar visibility and redraws the screen. */
+void wins_toggle_status_bar(void)
+{
+	conf.status_bar_show = !conf.status_bar_show;
+	conf.status_bar_temp_show = 0; /* Clear any temp show */
+	wins_reset();
+}
+
+/* Check if status bar should be visible (either enabled or temporarily shown). */
+int wins_status_bar_visible(void)
+{
+	return conf.status_bar_show || conf.status_bar_temp_show;
+}
+
+/* Temporarily show status bar for prompts */
+void wins_status_bar_temp_show(void)
+{
+	if (!conf.status_bar_show) {
+		conf.status_bar_temp_show = 1;
+		wins_get_config();
+		wins_resize();
+	}
+}
+
+/* Hide temporarily shown status bar */
+void wins_status_bar_temp_hide(void)
+{
+	if (conf.status_bar_temp_show) {
+		conf.status_bar_temp_show = 0;
+		wins_get_config();
+		wins_resize();
+	}
+}
+
 /*
  * Get the screen size and recalculate the windows configurations.
  */
@@ -496,15 +534,22 @@ void wins_get_config(void)
 	getmaxyx(stdscr, row, col);
 
 	/* fixed values for status, notification bars and calendar */
-	win[STA].h = STATUSHEIGHT;
-	win[STA].w = col;
-	win[STA].y = row - win[STA].h;
-	win[STA].x = 0;
+	if (wins_status_bar_visible()) {
+		win[STA].h = STATUSHEIGHT;
+		win[STA].w = col;
+		win[STA].y = row - win[STA].h;
+		win[STA].x = 0;
+	} else {
+		win[STA].h = 0;
+		win[STA].w = 0;
+		win[STA].y = 0;
+		win[STA].x = 0;
+	}
 
 	if (notify_bar()) {
 		win[NOT].h = 1;
 		win[NOT].w = col;
-		win[NOT].y = win[STA].y - 1;
+		win[NOT].y = wins_status_bar_visible() ? win[STA].y - 1 : row - 1;
 		win[NOT].x = 0;
 	} else {
 		win[NOT].h = 0;
@@ -571,13 +616,14 @@ void wins_update(int flags)
 {
 	wins_update_border(flags);
 	wins_update_panels(flags);
-	if (flags & FLAG_STA) {
+	if ((flags & FLAG_STA) && wins_status_bar_visible()) {
 		wins_update_bindings();
 		wins_status_bar();
 	}
 	if ((flags & FLAG_NOT) && notify_bar())
 		notify_update_bar();
-	wmove(win[STA].p, 0, 0);
+	if (wins_status_bar_visible())
+		wmove(win[STA].p, 0, 0);
 	wins_doupdate();
 }
 
@@ -670,7 +716,7 @@ void wins_update_bindings(void)
 		KEY_GENERIC_PREV_MONTH, KEY_GENERIC_NEXT_MONTH,
 		KEY_GENERIC_PREV_YEAR, KEY_GENERIC_NEXT_YEAR,
 		KEY_GENERIC_REDRAW, KEY_GENERIC_GOTO_TODAY,
-		KEY_GENERIC_CONFIG_MENU, KEY_GENERIC_CMD
+		KEY_GENERIC_CONFIG_MENU, KEY_GENERIC_TOGGLE_STATUS, KEY_GENERIC_CMD
 	};
 
 	static int bindings_apoint[] = {
@@ -687,7 +733,7 @@ void wins_update_bindings(void)
 		KEY_GENERIC_PREV_YEAR, KEY_GENERIC_NEXT_YEAR, KEY_GENERIC_GOTO,
 		KEY_GENERIC_GOTO_TODAY, KEY_GENERIC_CONFIG_MENU,
 		KEY_GENERIC_ADD_APPT, KEY_GENERIC_ADD_TODO, KEY_GENERIC_COPY,
-		KEY_GENERIC_PASTE, KEY_GENERIC_CMD
+		KEY_GENERIC_PASTE, KEY_GENERIC_TOGGLE_STATUS, KEY_GENERIC_CMD
 	};
 
 	static int bindings_todo[] = {
@@ -705,7 +751,7 @@ void wins_update_bindings(void)
 		KEY_GENERIC_PREV_YEAR, KEY_GENERIC_NEXT_YEAR, KEY_GENERIC_GOTO,
 		KEY_GENERIC_GOTO_TODAY, KEY_GENERIC_CONFIG_MENU,
 		KEY_GENERIC_ADD_APPT, KEY_GENERIC_ADD_TODO, KEY_GENERIC_REDRAW,
-		KEY_GENERIC_CMD
+		KEY_GENERIC_TOGGLE_STATUS, KEY_GENERIC_CMD
 	};
 
 	enum win active_panel = wins_slctd();
@@ -740,7 +786,8 @@ void wins_status_bar(void)
 /* Erase status bar. */
 void wins_erase_status_bar(void)
 {
-	erase_window_part(win[STA].p, 0, 0, col, STATUSHEIGHT);
+	if (wins_status_bar_visible())
+		erase_window_part(win[STA].p, 0, 0, col, STATUSHEIGHT);
 }
 
 /* Update the status bar page number to display other commands. */

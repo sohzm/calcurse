@@ -871,6 +871,7 @@ int main(int argc, char **argv)
 		HANDLE_KEY(KEY_GENERIC_SCROLL_DOWN, key_generic_scroll_down);
 		HANDLE_KEY(KEY_GENERIC_QUIT, key_generic_quit);
 		HANDLE_KEY(KEY_GENERIC_CMD, key_generic_cmd);
+		HANDLE_KEY(KEY_GENERIC_TOGGLE_STATUS, wins_toggle_status_bar);
 		case KEY_GENERIC_REDRAW:
 			resize = 1;
 			break;
@@ -884,5 +885,8 @@ int main(int argc, char **argv)
 		}
 
 		count = 0;
+		
+		/* Hide temporarily shown status bar after user input */
+		wins_status_bar_temp_hide();
 	}
 }

@@ -127,6 +127,8 @@ void vars_init(void)
 	conf.event_separator = 1;
 	conf.day_separator = 1;
 	conf.empty_appt_line = 1;
+	conf.status_bar_show = 1;
+	conf.status_bar_temp_show = 0;
 	strcpy(conf.empty_day, EMPTY_DAY_DEFAULT);
 	conf.confirm_quit = 1;
 	conf.confirm_delete = 1;

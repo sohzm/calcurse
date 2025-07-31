@@ -154,7 +154,8 @@ static struct keydef_s keydef[NBVKEYS] = {
 	{ "edit-note", "n N", gettext_noop("EditNote") },
 	{ "view-note", ">", gettext_noop("ViewNote") },
 	{ "raise-priority", "+", gettext_noop("Prio.+") },
-	{ "lower-priority", "-", gettext_noop("Prio.-") }
+	{ "lower-priority", "-", gettext_noop("Prio.-") },
+	{ "generic-toggle-status", "b B", gettext_noop("Toggle Status") }
 };
 
 /*

@@ -295,6 +295,8 @@ struct conf {
 	unsigned event_separator;
 	unsigned day_separator;
 	unsigned empty_appt_line;
+	unsigned status_bar_show;
+	unsigned status_bar_temp_show;
 	char empty_day[BUFSIZ];
 	const char *editor;
 	const char *pager;
@@ -568,6 +570,7 @@ enum vkey {
 	KEY_VIEW_NOTE,
 	KEY_RAISE_PRIORITY,
 	KEY_LOWER_PRIORITY,
+	KEY_GENERIC_TOGGLE_STATUS,
 
 	NBVKEYS,
 	KEY_UNDEF,
@@ -1362,6 +1365,10 @@ void wins_status_bar(void);
 void wins_erase_status_bar(void);
 void wins_other_status_page();
 void wins_reset_status_page(void);
+void wins_toggle_status_bar(void);
+int wins_status_bar_visible(void);
+void wins_status_bar_temp_show(void);
+void wins_status_bar_temp_hide(void);
 
 /* queue.c */
 void que_init(void);

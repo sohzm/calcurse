@@ -181,6 +181,9 @@ void warnbox(const char *msg)
  */
 void status_mesg(const char *msg1, const char *msg2)
 {
+	/* Temporarily show status bar for prompts if hidden */
+	wins_status_bar_temp_show();
+	
 	wins_erase_status_bar();
 	custom_apply_attr(win[STA].p, ATTR_HIGHEST);
 	mvwaddstr(win[STA].p, 0, 0, msg1);

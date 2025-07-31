@@ -541,6 +541,7 @@ enum {
 	SYSTEM_EVENTS,
 	CONFIRM_QUIT,
 	CONFIRM_DELETE,
+	STATUS_BAR_SHOW,
 	FIRST_DAY_OF_WEEK,
 	OUTPUT_DATE_FMT,
 	INPUT_DATE_FMT,
@@ -571,6 +572,7 @@ static void print_general_option(int i, WINDOW *win, int y, int hilt, void *cb_d
 		"general.systemevents = ",
 		"general.confirmquit = ",
 		"general.confirmdelete = ",
+		"general.statusbarshow = ",
 		"general.firstdayofweek = ",
 		"format.outputdate = ",
 		"format.inputdate = ",
@@ -699,6 +701,12 @@ static void print_general_option(int i, WINDOW *win, int y, int hilt, void *cb_d
 		mvwaddstr(win, y + 1, XPOS,
 			  _("(if set to YES, confirmation is required "
 			    "before deleting an event)"));
+		break;
+	case STATUS_BAR_SHOW:
+		print_bool_option_incolor(win, conf.status_bar_show, y,
+					  XPOS + strlen(opt[STATUS_BAR_SHOW]));
+		mvwaddstr(win, y + 1, XPOS,
+			  _("(if set to YES, the status bar is shown)"));
 		break;
 	case FIRST_DAY_OF_WEEK:
 		custom_apply_attr(win, ATTR_HIGHEST);
@@ -841,6 +849,9 @@ static void general_option_edit(int i)
 			strcpy(conf.empty_day, buf);
 		else if (val == GETSTRING_RET)
 			strcpy(conf.empty_day, EMPTY_DAY_DEFAULT);
+		break;
+	case STATUS_BAR_SHOW:
+		conf.status_bar_show = !conf.status_bar_show;
 		break;
 	case HEADING_POS:
 		if (conf.heading_pos == RIGHT)
